@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "usm",
+	"version": "${version}",
+	"name": "Unnamed Space Mod",
+	"description": "Do not go gentle into that good night.",
+	"authors": [
+		"Nitron"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/usm/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.nitron.usm.USM"
+		],
+		"client": [
+			"dev.nitron.usm.client.USMClient"
+		],
+		"cardinal-components": [
+			"dev.nitron.usm.content.cca.USMEntityComponents"
+		],
+		"fabric-datagen": [
+			"dev.nitron.usm.USMDataGenerator"
+		]
+	},
+	"custom": {
+		"cardinal-components": [
+			"usm:player"
+		]
+	},
+	"mixins": [
+		"usm.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
