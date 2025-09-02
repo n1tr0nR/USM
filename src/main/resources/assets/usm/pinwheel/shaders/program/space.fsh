@@ -107,7 +107,7 @@ bool raytraceSphere(in vec3 ro, in vec3 rd, out float dist, out vec4 color) {
     vec3 hitPos = ro + rd * dist;
     vec3 normal = normalize(hitPos - Position);
 
-    float nebula = fbm3(normal * 3.0 + vec3(Time * 0.0005, Time * 0.0005, Time * 0.0005)); // drift
+    float nebula = fbm3(normal * 3.0 + vec3(Time * 0.005, Time * 0.0005, Time * 0.0005)); // drift
     nebula = pow(nebula, 2.2); // make wispy
     vec3 gasColor = mix(vec3(0.05, 0.07, 0.1), Color, nebula);
     vec3 backdrop = gasColor * 0.25; // faint
@@ -166,3 +166,11 @@ void main() {
 
     gl_FragDepth = 1.0;
 }
+
+
+
+
+
+
+
+

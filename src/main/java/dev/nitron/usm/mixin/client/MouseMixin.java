@@ -1,9 +1,12 @@
 package dev.nitron.usm.mixin.client;
 
+import dev.nitron.usm.USM;
 import dev.nitron.usm.content.cca.SpacePlayerComponent;
 import dev.nitron.usm.content.cca.USMEntityComponents;
+import dev.nitron.usm.content.entity.FighterShipEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
+import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +31,36 @@ public abstract class MouseMixin {
     @Inject(method = "updateMouse", at = @At("HEAD"), cancellable = true)
     private void usm$updateMouse(double timeDelta, CallbackInfo ci){
         if (this.client.player == null) return;
+
+        Entity ridingEntity = this.client.player.getVehicle();
+
+        if (ridingEntity instanceof FighterShipEntity ship){
+            double sens = this.client.options.getMouseSensitivity().getValue() * 0.6 + 0.2;
+            double mult = sens * sens * sens * 2.0;
+            float deltaYaw = (float)(this.cursorDeltaX * mult);
+            float deltaPitch = (float)(this.cursorDeltaY * mult);
+
+            smoothYawVelocity += deltaYaw;
+            smoothPitchVelocity += deltaPitch;
+
+            float damping = 0.75f;
+            smoothYawVelocity *= damping;
+            smoothPitchVelocity *= damping;
+
+            float newYaw = ship.getYaw() + smoothYawVelocity * (float)timeDelta;
+            float newPitch = ship.getPitch() + smoothPitchVelocity * (float)timeDelta;
+
+            ship.setYaw(newYaw);
+            ship.setPitch(newPitch);
+
+            this.cursorDeltaX = 0;
+            this.cursorDeltaY = 0;
+            ci.cancel();
+            return;
+        }
+
         SpacePlayerComponent component = USMEntityComponents.PLAYER.get(this.client.player);
+        if(!USM.shouldBeInZeroG(this.client.player)) return;
 
         double sens = this.client.options.getMouseSensitivity().getValue() * 0.6 + 0.2;
         double mult = sens * sens * sens * 2.0;
@@ -53,7 +85,6 @@ public abstract class MouseMixin {
 
         this.cursorDeltaX = 0;
         this.cursorDeltaY = 0;
-
         ci.cancel();
     }
 }

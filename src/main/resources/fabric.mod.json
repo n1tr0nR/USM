@@ -7,7 +7,7 @@
 	"authors": [
 		"Nitron"
 	],
-	"license": "CC0-1.0",
+	"license": "ARR",
 	"icon": "assets/usm/icon.png",
 	"environment": "*",
 	"entrypoints": {

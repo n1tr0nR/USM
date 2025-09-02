@@ -1,7 +1,9 @@
 package dev.nitron.usm.mixin.client;
 
+import dev.nitron.usm.USM;
 import dev.nitron.usm.content.cca.SpacePlayerComponent;
 import dev.nitron.usm.content.cca.USMEntityComponents;
+import dev.nitron.usm.content.entity.FighterShipEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -31,6 +33,13 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     @Inject(method = "render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"
     , at = @At("HEAD"), cancellable = true)
     private void usm$zerogmovement(AbstractClientPlayerEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
+        if (!USM.shouldBeInZeroG(livingEntity)) return;
+
+        if (livingEntity.getVehicle() instanceof FighterShipEntity) {
+            ci.cancel();
+            return;
+        }
+
         this.model.child = livingEntity.isBaby();
         float l = livingEntity.getScale();
 
@@ -39,6 +48,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
 
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-livingEntity.getYaw()));
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(livingEntity.getPitch()));
+        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(component.getPlayerRoll()));
 
         float n = this.getAnimationProgress(livingEntity, g);
         this.setupTransforms(livingEntity, matrixStack, n, 0, g, l);

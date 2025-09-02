@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import dev.nitron.usm.USM;
 import dev.nitron.usm.content.cca.SpacePlayerComponent;
 import dev.nitron.usm.content.cca.USMEntityComponents;
 import net.minecraft.entity.EntityType;
@@ -29,6 +30,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     private void usm$travel(Vec3d movementInput, CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity) (Object) this;
         SpacePlayerComponent component = USMEntityComponents.PLAYER.get(player);
+        if(!USM.shouldBeInZeroG(player)) return;
         float yawDeg   = player.getYaw();
         float pitchDeg = player.getPitch();
 
@@ -53,13 +55,16 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         }
 
         player.move(MovementType.SELF, player.getVelocity());
-        player.setVelocity(player.getVelocity().multiply(0.975));
+        //player.setVelocity(player.getVelocity().multiply(0.975));
         player.velocityDirty = true;
         ci.cancel();
     }
 
     @ModifyExpressionValue(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;isSwimming()Z"))
     private boolean crawl(boolean original){
+        PlayerEntity player = (PlayerEntity) (Object) this;
+        SpacePlayerComponent component = USMEntityComponents.PLAYER.get(player);
+        if(!USM.shouldBeInZeroG(player)) return original;
         return true;
     }
 }

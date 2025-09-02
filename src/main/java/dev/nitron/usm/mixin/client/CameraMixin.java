@@ -2,30 +2,36 @@ package dev.nitron.usm.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.nitron.usm.USM;
 import dev.nitron.usm.content.cca.SpacePlayerComponent;
 import dev.nitron.usm.content.cca.USMEntityComponents;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.BlockView;
+import org.joml.Quaternionf;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-    @Shadow private Entity focusedEntity;
+    @Shadow @Final private Quaternionf rotation;
 
-    @Shadow private float lastTickDelta;
+    @Inject(method = "update", at = @At("TAIL"))
+    private void applyRoll(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+        if (focusedEntity instanceof PlayerEntity player){
+            if (!USM.shouldBeInZeroG(player)) return;
+            SpacePlayerComponent component = USMEntityComponents.PLAYER.get(player);
+            float rollDegrees = -component.getPlayerRoll();
+            float rollRadians = (float) Math.toRadians(rollDegrees);
 
-    @WrapOperation(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
-    private void usm$changeRotation(Camera instance, float yaw, float pitch, Operation<Void> original){
-        /*if (yaw == this.focusedEntity.getYaw(this.lastTickDelta) && yaw == this.focusedEntity.getPitch(this.lastTickDelta)){
-            if (this.focusedEntity instanceof PlayerEntity player){
-                SpacePlayerComponent component = USMEntityComponents.PLAYER.get(player);
-                original.call(instance, -component.getPlayerYaw(), component.getPlayerPitch());
-                return;
-            }
-        }*/
-        original.call(instance, yaw, pitch);
+            Quaternionf rollQuat = new Quaternionf().rotationZ(rollRadians);
+            this.rotation.mul(rollQuat);
+        }
     }
+
 }

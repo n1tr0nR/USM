@@ -1,6 +1,7 @@
 package dev.nitron.usm.client.shader;
 
 import dev.nitron.usm.USM;
+import dev.nitron.usm.content.entity.FighterShipEntity;
 import dev.nitron.usm.data.SSystem;
 import dev.nitron.usm.saves.USMAllSystems;
 import foundry.veil.api.client.render.VeilRenderSystem;
@@ -12,10 +13,13 @@ import foundry.veil.platform.VeilEventPlatform;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class GlobalShaderManager {
     public static void initShaders(){
@@ -26,6 +30,9 @@ public class GlobalShaderManager {
             PostProcessingManager manager = VeilRenderSystem.renderer().getPostProcessingManager();
             if (stage == VeilRenderLevelStageEvent.Stage.AFTER_SKY){
                 renderSpaceSkybox(manager, time, camera);
+            }
+            if (stage == VeilRenderLevelStageEvent.Stage.AFTER_LEVEL){
+                renderThrusters(manager, time, client);
             }
         });
     }
@@ -48,5 +55,71 @@ public class GlobalShaderManager {
         } else {
             USM.LOGGER.error("PostPipeline: 'space' is null.");
         }
+    }
+
+    private static void renderThrusters(PostProcessingManager manager, float time, MinecraftClient client){
+        PostPipeline thruster = manager.getPipeline(Identifier.of(USM.MOD_ID, "thruster"));
+        if (thruster != null){
+            ClientWorld world = client.world;
+            for (Entity entity : world.getEntities()){
+                if (entity instanceof FighterShipEntity fighterShipEntity){
+                    //Main thruster
+
+                    float power = 1;
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(0, 1.125F, -3.1F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.3F, 0.3F, 0.3F);
+                    thruster.getOrCreateUniform("Time").setFloat(time);
+
+                    manager.runPipeline(thruster);
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(0, 1.125F, -3.6F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.2F, 0.8F, 0.2F);
+                    thruster.getOrCreateUniform("Time").setFloat(time);
+
+                    manager.runPipeline(thruster);
+
+                    //Left thruster
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(0.925F, 0.8F, -2.1F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.15F, 0.3F, 0.3F);
+                    thruster.getOrCreateUniform("Time").setFloat(time + 60);
+
+                    manager.runPipeline(thruster);
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(0.925F, 0.8F, -2.5F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.1F, 0.8F, 0.2F);
+                    thruster.getOrCreateUniform("Time").setFloat(time + 60 );
+
+                    manager.runPipeline(thruster);
+
+                    //Right thruster
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(-0.925F, 0.8F, -2.1F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.15F, 0.3F, 0.3F);
+                    thruster.getOrCreateUniform("Time").setFloat(time + 20);
+
+                    manager.runPipeline(thruster);
+
+                    thruster.getOrCreateUniform("PlanetPosition").setVector(fighterShipEntity.getPos().toVector3f().add(-0.925F, 0.8F, -2.5F));
+                    thruster.getOrCreateUniform("PlanetRotation").setVector((float) Math.toRadians(90F), 0, 0);
+                    thruster.getOrCreateUniform("PlanetSize").setVector(0.1F, 0.8F, 0.2F);
+                    thruster.getOrCreateUniform("Time").setFloat(time + 20);
+
+                    manager.runPipeline(thruster);
+                }
+            }
+        } else {
+            USM.LOGGER.error("PostPipeline: 'thruster' is null.");
+        }
+    }
+
+    public static Vec3d lerp(Vec3d a, Vec3d b, double t) {
+        return a.add(b.subtract(a).multiply(t));
     }
 }

@@ -37,7 +37,7 @@ public class FighterShipModel extends EntityModel<Entity> {
 		.uv(174, 0).cuboid(-7.0F, -22.0F, 6.0F, 14.0F, 5.0F, 36.0F, new Dilation(0.0F))
 		.uv(242, 255).cuboid(-6.0F, -16.0F, -9.0F, 12.0F, 7.0F, 18.0F, new Dilation(0.0F))
 		.uv(262, 68).cuboid(-8.0F, -9.0F, 31.0F, 16.0F, 6.0F, 3.0F, new Dilation(0.0F))
-		.uv(90, 190).cuboid(-5.0F, -15.0F, 34.0F, 10.0F, 10.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+		.uv(90, 190).cuboid(-5.0F, -15.0F, 34.0F, 10.0F, 10.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 33.0F, 3.0F));
 
 		ModelPartData cube_r1 = fs.addChild("cube_r1", ModelPartBuilder.create().uv(274, 0).cuboid(0.0F, 0.0F, -12.0F, 0.0F, 3.0F, 24.0F, new Dilation(0.0F)), ModelTransform.of(-27.0F, 5.0F, 9.0F, 0.0F, 0.0F, -0.5236F));
 
@@ -61,8 +61,10 @@ public class FighterShipModel extends EntityModel<Entity> {
 		.uv(276, 90).cuboid(-2.0F, 8.0F, -1.25F, 4.0F, 1.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(-15.0F, 0.0F, 13.25F));
 		return TexturedModelData.of(modelData, 512, 512);
 	}
+
 	@Override
 	public void setAngles(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
 	}
 
 	@Override

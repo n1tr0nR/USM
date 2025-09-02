@@ -23,6 +23,9 @@ public class SpacePlayerComponent implements AutoSyncedComponent, CommonTickingC
 
     @Override
     public void tick() {
+        if (this.player.getWorld().isClient){
+            this.player.sendMessage(Text.literal("Roll: " + this.getPlayerRoll()), true);
+        }
     }
 
     @Override
@@ -56,7 +59,7 @@ public class SpacePlayerComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public float getPlayerRoll() {
-        return playerRoll;
+        return (playerRoll % 360 + 360) % 360;
     }
 
     public void setPlayerRoll(float playerRoll) {
